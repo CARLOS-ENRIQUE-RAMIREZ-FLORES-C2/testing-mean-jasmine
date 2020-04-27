@@ -1,16 +1,36 @@
 import { async, ComponentFixture, TestBed } from '@angular/core/testing';
 
 import { LayoutComponent } from './layout.component';
+import { MatBottomSheet } from '@angular/material/bottom-sheet';
+import { RouterTestingModule } from '@angular/router/testing';
+import { NO_ERRORS_SCHEMA, CUSTOM_ELEMENTS_SCHEMA } from '@angular/core';
+import { ActionsComponent } from '../actions/actions.component';
 
-describe('LayoutComponent', () => {
+class MatBottomSheetStub {
+  open() {}
+}
+
+fdescribe('LayoutComponent', () => {
   let component: LayoutComponent;
   let fixture: ComponentFixture<LayoutComponent>;
-
   beforeEach(async(() => {
     TestBed.configureTestingModule({
-      declarations: [ LayoutComponent ]
-    })
-    .compileComponents();
+      declarations: [LayoutComponent],
+      providers: [{ provide: MatBottomSheet, useClass: MatBottomSheetStub }],
+      imports: [
+        RouterTestingModule.withRoutes([
+          {
+            path: '',
+            component: LayoutComponent
+          },
+          {
+            path: 'app/add',
+            component: LayoutComponent
+          }
+        ])
+      ],
+      schemas: [NO_ERRORS_SCHEMA, CUSTOM_ELEMENTS_SCHEMA]
+    }).compileComponents();
   }));
 
   beforeEach(() => {
@@ -21,5 +41,37 @@ describe('LayoutComponent', () => {
 
   it('should create', () => {
     expect(component).toBeTruthy();
+  });
+
+  it('Should set the editMode to false', () => {
+    const verifyEditMode = spyOn(component, 'verifyEditMode').and.callThrough();
+
+    fixture.ngZone.run(() => {
+      (<any>component).router.navigate(['/']);
+
+      fixture.whenStable().then(() => {
+        expect(component.editMode).toBeFalsy();
+        expect(verifyEditMode).toHaveBeenCalled();
+      });
+    });
+  });
+  it('Should set the editMode to true', () => {
+    const verifyEditMode = spyOn(component, 'verifyEditMode').and.callThrough();
+
+    fixture.ngZone.run(() => {
+      (<any>component).router.navigate(['/app/add']);
+
+      fixture.whenStable().then(() => {
+        expect(component.editMode).toBeTrue();
+        expect(verifyEditMode).toHaveBeenCalled();
+      });
+    });
+  });
+  it('Should open', () => {
+    const open = spyOn((<any>component).bottomSheet, 'open');
+
+    component.openBottomSheet();
+
+    expect(open).toHaveBeenCalledWith(ActionsComponent);
   });
 });
