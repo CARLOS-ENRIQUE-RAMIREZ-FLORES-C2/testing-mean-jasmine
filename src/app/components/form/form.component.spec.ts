@@ -6,7 +6,7 @@ import { of } from 'rxjs';
 import { NavigationService } from 'src/app/services/navigation.service';
 import { MatSnackBar } from '@angular/material/snack-bar';
 import { CUSTOM_ELEMENTS_SCHEMA, NO_ERRORS_SCHEMA } from '@angular/core';
-import { ReactiveFormsModule } from '@angular/forms';
+import { ReactiveFormsModule, FormArray } from '@angular/forms';
 
 class RepositoryServiceStub {
   savePins() {
@@ -39,7 +39,7 @@ fdescribe('FormComponent', () => {
         { provide: MatSnackBar, useClass: snackBarStub },
       ],
       schemas: [NO_ERRORS_SCHEMA, CUSTOM_ELEMENTS_SCHEMA],
-      imports: [ReactiveFormsModule]
+      imports: [ReactiveFormsModule],
     }).compileComponents();
   }));
 
@@ -51,5 +51,29 @@ fdescribe('FormComponent', () => {
 
   it('should create', () => {
     expect(component).toBeTruthy();
+  });
+
+  describe('When component is initilizated', () => {
+    it('Should create the forms', () => {
+
+      expect(Object.keys(component.firstFormGroup.controls)).toEqual([
+        'title',
+        'author',
+        'description',
+      ]);
+      expect(Object.keys(component.secondFormGroup.controls)).toEqual([
+        'firstAsset',
+        'assets'
+      ]);
+
+    });
+  });
+  describe('When addAsset is executed', () =>{
+    it('Should add new group', () => {
+      const assets = <FormArray>component.secondFormGroup.get('assets');
+      component.addAsset();
+      component.addAsset();
+      expect(Object.keys(assets.controls)).toEqual(['0','1']);
+    });
   });
 });
