@@ -14,6 +14,6 @@ const reporter = new JasmineConsoleReporter({
     emoji: true,
     beep: true
 });
-
+jasmine.seed(44925);
 jasmine.addReporter(reporter);
 jasmine.execute();
